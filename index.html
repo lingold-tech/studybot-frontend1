@@ -3,220 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login/Signup</title>
+    <title>Signup & Login</title>
     <style>
-        /* General Styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4b6cb7, #182848);
-            background-size: 400% 400%;
-            animation: gradientAnimation 8s ease infinite;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: #fff;
-            overflow: hidden;
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            margin: 0;
         }
 
         .container {
-            background-color: rgba(0, 0, 0, 0.4);
-            padding: 30px;
-            border-radius: 12px;
-            width: 350px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
             text-align: center;
-            backdrop-filter: blur(5px);
         }
 
         h2 {
-            margin-bottom: 25px;
-            font-weight: 600;
-            color: #ffffffcc;
-            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
 
         input[type="text"], input[type="password"] {
             width: 100%;
-            padding: 14px;
+            padding: 10px;
             margin: 10px 0;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus, input[type="password"]:focus {
-            background-color: rgba(255, 255, 255, 0.3);
-            border: 2px solid #4b6cb7;
-        }
-
-        input[type="text"]::placeholder, input[type="password"]::placeholder {
-            color: #ffffff88;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, #4b6cb7, #182848);
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
             border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 5px;
             cursor: pointer;
-            transition: transform 0.3s ease, background 0.3s ease;
         }
 
         button:hover {
-            background: linear-gradient(45deg, #182848, #4b6cb7);
-            transform: scale(1.05);
-        }
-
-        .guest-btn {
-            background-color: #28a745;
-            margin-top: 20px;
-        }
-
-        .guest-btn:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-        }
-
-        .message, .error {
-            margin-top: 15px;
-            font-size: 14px;
-            text-align: center;
+            background-color: #45a049;
         }
 
         .message {
+            margin-top: 15px;
+            font-size: 14px;
             color: #4caf50;
         }
 
         .error {
             color: #f44336;
         }
-
-        .loading {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #4b6cb7;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-top: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Login</h2>
-        <input type="text" id="loginUsername" placeholder="Username" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
-        <button onclick="login()">Login</button>
-        <p class="error" id="loginError"></p>
 
+    <div class="container">
         <h2>Signup</h2>
         <input type="text" id="signupUsername" placeholder="Username" required>
         <input type="password" id="signupPassword" placeholder="Password" required>
         <button onclick="signup()">Signup</button>
-        <p class="message" id="signupMessage"></p>
+        <p id="signupMessage" class="message"></p>
 
-        <!-- Continue as Guest button -->
-        <button class="guest-btn" onclick="continueAsGuest()">Continue as Guest</button>
+        <h2>Login</h2>
+        <input type="text" id="loginUsername" placeholder="Username" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <p id="loginMessage" class="message"></p>
 
-        <!-- Loading spinner -->
-        <div id="loadingSpinner" class="loading" style="display: none;"></div>
+        <h2>Or Continue as Guest</h2>
+        <button onclick="continueAsGuest()">Continue as Guest</button>
     </div>
 
     <script>
-        const apiUrl = 'https://backend-sems.onrender.com'; // Your backend API URL
-
-        async function signup() {
-            showLoading(true);
+        // Signup function
+        function signup() {
             const username = document.getElementById('signupUsername').value;
             const password = document.getElementById('signupPassword').value;
 
-            const response = await fetch(`${apiUrl}/signup`, {
+            fetch('https://backend-sems.onrender.com/signup', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Signup successful!') {
+                    document.getElementById('signupMessage').textContent = 'Signup successful! You can now log in.';
+                    document.getElementById('signupMessage').classList.remove('error');
+                    document.getElementById('signupMessage').classList.add('message');
+                } else {
+                    document.getElementById('signupMessage').textContent = 'Signup failed: ' + data.message;
+                    document.getElementById('signupMessage').classList.remove('message');
+                    document.getElementById('signupMessage').classList.add('error');
+                }
+            })
+            .catch(error => {
+                document.getElementById('signupMessage').textContent = 'An error occurred during signup.';
+                document.getElementById('signupMessage').classList.remove('message');
+                document.getElementById('signupMessage').classList.add('error');
             });
-            const result = await response.json();
-
-            // Display a success or failure message
-            if (result.success) {
-                document.getElementById('signupMessage').textContent = 'Signup successful! You can now log in.';
-                document.getElementById('loginError').textContent = ''; // Clear error message
-            } else {
-                document.getElementById('signupMessage').textContent = 'Signup failed! ' + result.message;
-                document.getElementById('loginError').textContent = ''; // Clear any existing error messages
-            }
-
-            showLoading(false);
         }
 
-        async function login() {
-            showLoading(true);
+        // Login function
+        function login() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            const response = await fetch(`${apiUrl}/login`, {
+            fetch('https://backend-sems.onrender.com/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Login successful!') {
+                    document.getElementById('loginMessage').textContent = 'Login successful!';
+                    document.getElementById('loginMessage').classList.remove('error');
+                    document.getElementById('loginMessage').classList.add('message');
+                    // Redirect after successful login
+                    window.location.href = "https://yourmainwebsite.com";  // Replace with the desired URL
+                } else {
+                    document.getElementById('loginMessage').textContent = 'Login failed: ' + data.message;
+                    document.getElementById('loginMessage').classList.remove('message');
+                    document.getElementById('loginMessage').classList.add('error');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loginMessage').textContent = 'An error occurred during login.';
+                document.getElementById('loginMessage').classList.remove('message');
+                document.getElementById('loginMessage').classList.add('error');
             });
-            const result = await response.json();
-
-            if (result.success) {
-                document.getElementById('loginError').textContent = '';
-                alert('Login successful!');
-                window.location.href = "https://sites.google.com/view/studybothome/home";  // Redirect to the Google Sites page
-            } else {
-                document.getElementById('loginError').textContent = result.message;
-            }
-
-            showLoading(false);
         }
 
-        async function continueAsGuest() {
-            showLoading(true);
-            const guestId = 'guest_' + new Date().getTime();  // Unique ID based on timestamp
-            localStorage.setItem('currentUser', guestId);  // Store the guest session in localStorage
+        // Continue as Guest function
+        function continueAsGuest() {
+            // Create a unique guest session
+            const guestId = 'guest_' + new Date().getTime();  // Use timestamp for unique guest ID
+            localStorage.setItem('currentUser', guestId); // Save guest session to localStorage
 
-            // Optionally, store other guest data (example: guest name)
-            localStorage.setItem('guestName', 'Guest_' + guestId);
-
-            // Redirect directly to the main page as a guest
-            setTimeout(() => {
-                window.location.href = "https://sites.google.com/view/studybothome/home";  // Redirect to the Google Sites page
-            }, 1000);
-        }
-
-        function showLoading(isLoading) {
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            loadingSpinner.style.display = isLoading ? 'block' : 'none';
+            // Redirect to main website as a guest
+            window.location.href = "https://yourmainwebsite.com";  // Replace with your main website URL
         }
     </script>
+
 </body>
 </html>
