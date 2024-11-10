@@ -150,27 +150,35 @@
     </div>
 
     <script>
+        const backendUrl = "https://backend-sems.onrender.com"; // Backend URL
+
         function signup() {
             showLoading(true);
             const username = document.getElementById('signupUsername').value;
             const password = document.getElementById('signupPassword').value;
 
-            fetch('https://0989d2c3-d7db-48fe-89bd-041c79ecb13e-00-1ytjkgxt1ri0d.pike.replit.dev/api/signup', {
+            fetch(`${backendUrl}/signup`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
                     document.getElementById('signupMessage').textContent = data.message;
                     document.getElementById('loginError').textContent = '';
+                } else if (data.error) {
+                    document.getElementById('signupMessage').textContent = '';
+                    document.getElementById('loginError').textContent = data.error;
                 }
+                showLoading(false);
             })
-            .catch(error => console.error('Error:', error))
-            .finally(() => showLoading(false));
+            .catch(error => {
+                console.error('Error:', error);
+                showLoading(false);
+            });
         }
 
         function login() {
@@ -178,38 +186,43 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch('https://0989d2c3-d7db-48fe-89bd-041c79ecb13e-00-1ytjkgxt1ri0d.pike.replit.dev/api/login', {
+            fetch(`${backendUrl}/login`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                    if (data.message === "Login successful!") {
-                        alert(data.message);
-                        // Store user session in localStorage
-                        localStorage.setItem('currentUser', username);
-                        window.location.href = "https://sites.google.com/view/studybothome/home"; // Redirect after login
-                    } else {
-                        document.getElementById('loginError').textContent = data.message;
-                    }
+                    document.getElementById('loginError').textContent = '';
+                    alert('Login successful!');
+                    // Redirect to the main page
+                    window.location.href = "https://your-main-website-url.com"; // Replace with your main website URL
+                } else if (data.error) {
+                    document.getElementById('loginError').textContent = data.error;
                 }
+                showLoading(false);
             })
-            .catch(error => console.error('Error:', error))
-            .finally(() => showLoading(false));
+            .catch(error => {
+                console.error('Error:', error);
+                showLoading(false);
+            });
         }
 
         function continueAsGuest() {
             showLoading(true);
-            const guestId = 'guest_' + new Date().getTime(); // Unique guest ID
-            localStorage.setItem('currentUser', guestId); // Store guest session
+            // Create a unique guest ID for the session
+            const guestId = 'guest_' + new Date().getTime();  // Unique ID based on timestamp
+            localStorage.setItem('currentUser', guestId);  // Store the guest session in localStorage
+
+            // Optionally, store other guest data (example: guest name)
+            localStorage.setItem('guestName', 'Guest_' + guestId);
 
             // Redirect directly to the main page as a guest
             setTimeout(() => {
-                window.location.href = "https://sites.google.com/view/studybothome/home"; // Guest redirect
+                window.location.href = "https://your-main-website-url.com";  // Replace with your main website URL
             }, 1000);
         }
 
