@@ -3,8 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Signup</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Login/Signup</title>
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            background-size: 400% 400%;
+            animation: gradientAnimation 8s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #ffffffcc;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 2px solid #4b6cb7;
+        }
+
+        input[type="text"]::placeholder, input[type="password"]::placeholder {
+            color: #ffffff88;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #4b6cb7, #182848);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #182848, #4b6cb7);
+            transform: scale(1.05);
+        }
+
+        .guest-btn {
+            background-color: #28a745;
+            margin-top: 20px;
+        }
+
+        .guest-btn:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .message, .error {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .message {
+            color: #4caf50;
+        }
+
+        .error {
+            color: #f44336;
+        }
+
+        .loading {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4b6cb7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -12,15 +134,89 @@
         <input type="text" id="loginUsername" placeholder="Username" required>
         <input type="password" id="loginPassword" placeholder="Password" required>
         <button onclick="login()">Login</button>
-        <p id="loginError" class="error"></p>
-
+        <p class="error" id="loginError"></p>
+        
         <h2>Signup</h2>
         <input type="text" id="signupUsername" placeholder="Username" required>
         <input type="password" id="signupPassword" placeholder="Password" required>
         <button onclick="signup()">Signup</button>
-        <p id="signupMessage" class="message"></p>
+        <p class="message" id="signupMessage"></p>
+
+        <!-- Continue as Guest button -->
+        <button class="guest-btn" onclick="continueAsGuest()">Continue as Guest</button>
+
+        <!-- Loading spinner -->
+        <div id="loadingSpinner" class="loading" style="display: none;"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        function signup() {
+            showLoading(true);
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+
+            fetch('https://0989d2c3-d7db-48fe-89bd-041c79ecb13e-00-1ytjkgxt1ri0d.pike.replit.dev/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('signupMessage').textContent = data.message;
+                    document.getElementById('loginError').textContent = '';
+                }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => showLoading(false));
+        }
+
+        function login() {
+            showLoading(true);
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            fetch('https://0989d2c3-d7db-48fe-89bd-041c79ecb13e-00-1ytjkgxt1ri0d.pike.replit.dev/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    if (data.message === "Login successful!") {
+                        alert(data.message);
+                        // Store user session in localStorage
+                        localStorage.setItem('currentUser', username);
+                        window.location.href = "https://sites.google.com/view/studybothome/home"; // Redirect after login
+                    } else {
+                        document.getElementById('loginError').textContent = data.message;
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => showLoading(false));
+        }
+
+        function continueAsGuest() {
+            showLoading(true);
+            const guestId = 'guest_' + new Date().getTime(); // Unique guest ID
+            localStorage.setItem('currentUser', guestId); // Store guest session
+
+            // Redirect directly to the main page as a guest
+            setTimeout(() => {
+                window.location.href = "https://sites.google.com/view/studybothome/home"; // Guest redirect
+            }, 1000);
+        }
+
+        function showLoading(isLoading) {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.style.display = isLoading ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>
