@@ -135,7 +135,7 @@
         <input type="password" id="loginPassword" placeholder="Password" required>
         <button onclick="login()">Login</button>
         <p class="error" id="loginError"></p>
-        
+
         <h2>Signup</h2>
         <input type="text" id="signupUsername" placeholder="Username" required>
         <input type="password" id="signupPassword" placeholder="Password" required>
@@ -150,70 +150,57 @@
     </div>
 
     <script>
-        const backendUrl = "https://backend-sems.onrender.com"; // Backend URL
+        const apiUrl = 'https://backend-sems.onrender.com'; // Your backend API URL
 
-        function signup() {
+        async function signup() {
             showLoading(true);
             const username = document.getElementById('signupUsername').value;
             const password = document.getElementById('signupPassword').value;
 
-            fetch(`${backendUrl}/signup`, {
+            const response = await fetch(`${apiUrl}/signup`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    document.getElementById('signupMessage').textContent = data.message;
-                    document.getElementById('loginError').textContent = '';
-                } else if (data.error) {
-                    document.getElementById('signupMessage').textContent = '';
-                    document.getElementById('loginError').textContent = data.error;
-                }
-                showLoading(false);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showLoading(false);
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
             });
+            const result = await response.json();
+
+            // Display a success or failure message
+            if (result.success) {
+                document.getElementById('signupMessage').textContent = 'Signup successful! You can now log in.';
+                document.getElementById('loginError').textContent = ''; // Clear error message
+            } else {
+                document.getElementById('signupMessage').textContent = 'Signup failed! ' + result.message;
+                document.getElementById('loginError').textContent = ''; // Clear any existing error messages
+            }
+
+            showLoading(false);
         }
 
-        function login() {
+        async function login() {
             showLoading(true);
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch(`${backendUrl}/login`, {
+            const response = await fetch(`${apiUrl}/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    document.getElementById('loginError').textContent = '';
-                    alert('Login successful!');
-                    // Redirect to the main page
-                    window.location.href = "https://sites.google.com/view/studybothome/home"; // Replace with your main website URL
-                } else if (data.error) {
-                    document.getElementById('loginError').textContent = data.error;
-                }
-                showLoading(false);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showLoading(false);
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
             });
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('loginError').textContent = '';
+                alert('Login successful!');
+                window.location.href = "https://sites.google.com/view/studybothome/home";  // Redirect to the Google Sites page
+            } else {
+                document.getElementById('loginError').textContent = result.message;
+            }
+
+            showLoading(false);
         }
 
-        function continueAsGuest() {
+        async function continueAsGuest() {
             showLoading(true);
-            // Create a unique guest ID for the session
             const guestId = 'guest_' + new Date().getTime();  // Unique ID based on timestamp
             localStorage.setItem('currentUser', guestId);  // Store the guest session in localStorage
 
@@ -222,7 +209,7 @@
 
             // Redirect directly to the main page as a guest
             setTimeout(() => {
-                window.location.href = "https://sites.google.com/view/studybothome/home";  // Replace with your main website URL
+                window.location.href = "https://sites.google.com/view/studybothome/home";  // Redirect to the Google Sites page
             }, 1000);
         }
 
